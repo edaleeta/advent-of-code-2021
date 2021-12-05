@@ -69,10 +69,13 @@ def parse_input():
     return called_numbers, called_number_to_round, cards
 
 
-def eval_bingo():
+def eval_bingo(is_last_win=False):
     called_numbers, called_number_to_round, cards = parse_input()
     winning_rounds = [card.get_winning_round(called_number_to_round) for card in cards]
-    winning_card, winning_round = min(
+
+    eval_cards = max if is_last_win else min
+
+    winning_card, winning_round = eval_cards(
         [(cards[i], round) for i, round in enumerate(winning_rounds) if round > -1],
         key=lambda x: x[1]
     )
@@ -83,3 +86,4 @@ def eval_bingo():
 
 
 print(eval_bingo())
+print(eval_bingo(is_last_win=True))
