@@ -3,7 +3,7 @@ FILE_NAME = "day-07-input.txt"
 
 
 # Checking input
-def get_possible_moves(positions):
+def print_possible_moves(positions, is_part_two=False):
     positions.sort()
     for i, position in enumerate(positions):
         cost = 0
@@ -11,21 +11,32 @@ def get_possible_moves(positions):
             if j == i:
                 continue
             moving_position = positions[j]
-            cost += abs(moving_position - position)
+            distance = abs(moving_position - position)
+            if is_part_two:
+                cost += sum([i for i in range(1, distance + 1)])
+            else:
+                cost += distance
 
         print(f"Cost to move all to {position}: {cost}")
 
 
-def get_lowest_cost(positions):
+def get_lowest_cost(positions, is_part_two=False):
     positions.sort()
-    middle = len(positions) // 2
+    converge_position = round(sum(positions) // len(positions)) if is_part_two else positions[len(positions) // 2]
+    converge_positions = [converge_position, converge_position + 1]
 
-    converge_position = positions[middle]
-    cost = 0
-    for position in positions:
-        cost += abs(position - converge_position)
-
-    return cost
+    lowest_cost = None
+    for converge_position in converge_positions:
+        cost = 0
+        for position in positions:
+            distance = abs(position - converge_position)
+            if is_part_two:
+                cost += sum([i for i in range(1, distance + 1)])
+            else:
+                cost += abs(position - converge_position)
+        if lowest_cost is None or cost < lowest_cost:
+            lowest_cost = cost
+    return lowest_cost
 
 
 def parse_input():
@@ -35,5 +46,7 @@ def parse_input():
 
 
 input = parse_input()
-# print(get_possible_moves(input))
+# print(print_possible_moves(input))
 print(get_lowest_cost(input))
+# print_possible_moves(input, is_part_two=True)
+print(get_lowest_cost(input, is_part_two=True))
