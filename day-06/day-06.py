@@ -40,3 +40,4 @@ def get_count_lanternfish_after_days(num_days):
 
 
 print(get_count_lanternfish_after_days(80))
+print(get_count_lanternfish_after_days(256))
