@@ -86,4 +86,23 @@ def get_flash_count_after_n_steps(n):
     return num_flashes
 
 
+def check_is_synced(oct_map):
+    for row in oct_map:
+        if not all([octopus.energy == 0 for octopus in row]):
+            return False
+    return True
+
+
+def get_step_synced():
+    oct_map = parse_input_to_oct_map()
+    is_synced = False
+    n = 0
+    while not is_synced:
+        n += 1
+        apply_step(oct_map)
+        is_synced = check_is_synced(oct_map)
+    return n
+
+
 print(get_flash_count_after_n_steps(100))
+print(get_step_synced())
