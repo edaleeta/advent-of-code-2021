@@ -38,6 +38,34 @@ class CaveSystem:
         visit_cave('start', [], set())
         return paths
 
+    def find_all_paths_v2(self):
+        """May visit a single small cave twice, the remaining small caves, only once"""
+
+        paths = set()
+
+        def visit_cave(cave, path, visited, small_cave_to_visit_twice):
+            path.append(cave)
+
+            if cave == small_cave_to_visit_twice:
+                small_cave_to_visit_twice = None
+            elif cave.islower():
+                visited.add(cave)
+
+            if cave == 'end':
+                final_path = tuple(path)
+                if final_path not in paths:
+                    paths.add(final_path)
+                return
+
+            for next_cave in self.caves[cave]:
+                if next_cave not in visited:
+                    visit_cave(next_cave, path[:], visited.copy(), small_cave_to_visit_twice)
+
+        small_caves = [cave for cave in self.caves if cave not in ('start', 'end') and cave.islower()]
+        for small_cave in small_caves:
+            visit_cave('start', [], set(), small_cave)
+        return paths
+
 
 def build_cave_system():
     cave_system = CaveSystem()
@@ -49,10 +77,14 @@ def build_cave_system():
     return cave_system
 
 
-def get_num_paths_in_cave_system(cave_system):
-    paths = cave_system.find_all_paths()
+def get_num_paths_in_cave_system(cave_system, is_v2=False):
+    if is_v2:
+        paths = cave_system.find_all_paths_v2()
+    else:
+        paths = cave_system.find_all_paths()
     return len(paths)
 
 
 cave_system = build_cave_system()
 print(get_num_paths_in_cave_system(cave_system))
+print(get_num_paths_in_cave_system(cave_system, is_v2=True))
