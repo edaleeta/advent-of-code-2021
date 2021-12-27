@@ -71,4 +71,25 @@ def get_num_dots_visible():
     return len(coords)
 
 
+def print_code():
+    coords, instructions = parse_input()
+    for instruction in instructions:
+        coords = get_coords_after_fold(instruction, coords)
+
+    sorted_coords = sorted(coords, key=lambda x: x[1])
+    max_y = sorted_coords[-1][1]
+
+    sorted_coords = sorted(coords, key=lambda x: x[0])
+    max_x = sorted_coords[-1][0]
+
+    grid = [["   " for _ in range(max_x + 1)] for _ in range(max_y + 1)]
+    for coord in sorted_coords:
+        x, y = coord
+        grid[y][x] = " * "
+
+    for row in grid:
+        print("".join(row))
+
+
 print(get_num_dots_visible())
+print_code()
