@@ -70,3 +70,4 @@ def get_polymer_element_difference(n):
 
 
 print(get_polymer_element_difference(n=10))
+print(get_polymer_element_difference(n=40))
