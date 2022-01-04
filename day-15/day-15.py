@@ -71,12 +71,52 @@ class PriorityQueue:
         return heapq.heappop(self.elements)[1]
 
 
-def get_lowest_risk_level_astar():
-    grid = parse_input()
-    max_x_coord = len(grid[0]) - 1
-    max_y_coord = len(grid) - 1
+class FullGrid:
+    def __init__(self, seed_grid, size_factor=1):
+        self.seed_grid = seed_grid
+        self.seed_grid_rows = len(seed_grid[0])
+        self.seed_grid_cols = len(seed_grid)
+        self.size_factor = size_factor
+        self.max_x_coord = len(self.seed_grid[0]) * self.size_factor - 1
+        self.max_y_coord = len(self.seed_grid) * self.size_factor - 1
+
+    def get_value(self, coord):
+        x, y = coord
+        if x > self.max_x_coord or y > self.max_y_coord:
+            raise Exception(f"coord {coord} out of bounds")
+
+        seed_x = x % self.seed_grid_rows
+        seed_y = y % self.seed_grid_cols
+        seed_value = self.seed_grid[seed_y][seed_x]
+
+        steps_x = x // self.seed_grid_rows
+        steps_y = y // self.seed_grid_cols
+        steps_away = steps_x + steps_y
+
+        wrap_around_value = ((steps_away + seed_value) % 10 + 1
+                             if steps_away + seed_value > 9
+                             else steps_away + seed_value)
+
+        return wrap_around_value
+
+    def get_neighbors(self, coord):
+        x, y = coord
+        neighbors = []
+        if x != self.max_x_coord:
+            neighbors.append((x+1, y))
+        if y != self.max_y_coord:
+            neighbors.append((x, y+1))
+        if x != 0:
+            neighbors.append((x-1, y))
+        if y != 0:
+            neighbors.append((x, y-1))
+        return neighbors
+
+
+def get_lowest_risk_level_astar(size_factor=1):
+    grid = FullGrid(parse_input(), size_factor=size_factor)
     start_coord = (0, 0)
-    end_coord = (max_x_coord, max_y_coord)
+    end_coord = (grid.max_x_coord, grid.max_y_coord)
 
     open_nodes = PriorityQueue()
     came_from = {start_coord: None}
@@ -89,16 +129,10 @@ def get_lowest_risk_level_astar():
         if current_coord == end_coord:
             break
 
-        x, y = current_coord
-        next_coords = []
-        if x != max_x_coord:
-            next_coords.append((x+1, y))
-        if y != max_y_coord:
-            next_coords.append((x, y+1))
+        next_coords = grid.get_neighbors(current_coord)
 
         for next_coord in next_coords:
-            x, y = next_coord
-            new_risk = risk_so_far[current_coord] + grid[y][x]
+            new_risk = risk_so_far[current_coord] + grid.get_value(next_coord)
             if next_coord not in risk_so_far or new_risk < risk_so_far[next_coord]:
                 risk_so_far[next_coord] = new_risk
                 # heuristic = Manhattan distance to end node, minimum risk level = 1
@@ -109,11 +143,13 @@ def get_lowest_risk_level_astar():
     return risk_so_far[end_coord]
 
 
-def run_timed_function(func):
+def run_timed_function(func, **kwargs):
     start_time = time.time()
-    print(func())
-    print(f'runtime: {(time.time() - start_time) * 1000} ms')
+    print(func(**kwargs))
+    print(f'{func.__name__} runtime: {(time.time() - start_time) * 1000} ms')
 
 
 run_timed_function(get_lowest_risk_level_dijkstra)
 run_timed_function(get_lowest_risk_level_astar)
+run_timed_function(get_lowest_risk_level_astar, size_factor=5)
+
