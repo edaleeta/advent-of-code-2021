@@ -90,6 +90,7 @@ def apply_operator(type_id, values):
 def get_transmission_value(input_hex):
     binary = deque()
     transmission = deque(input_hex)
+    versions = []
 
     def get_packet_value_and_bits_read():
         total_bits_read = 0
@@ -101,6 +102,8 @@ def get_transmission_value(input_hex):
         bits = get_next_bits(bits_to_read, transmission, binary)
 
         total_bits_read += bits_to_read
+        version = int(''.join(bits[0:3]), 2)
+        versions.append(version)
         type_id = int(''.join(bits[3:]), 2)
 
         if type_id == 4:
@@ -139,7 +142,10 @@ def get_transmission_value(input_hex):
         result = apply_operator(type_id, subpacket_values)
         return result, total_bits_read
 
-    return get_packet_value_and_bits_read()
+    value_and_bits_read = get_packet_value_and_bits_read()
+    
+    print(f"Sum of versions: {sum(versions)}")
+    return value_and_bits_read
 
 
 def parse_input():
