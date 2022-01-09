@@ -1,4 +1,5 @@
 import json
+import time
 
 # FILE_NAME = "day-18-test-input.txt"
 # FILE_NAME = "day-18-test-input-b.txt"
@@ -29,6 +30,9 @@ class Node:
         if not self.is_pair:
             return str(self.value)
         return f"[{self.left},{self.right}]"
+
+    def __add__(self, other):
+        return Node([self, other]).reduce()
 
     @staticmethod
     def _find_left(root, value):
@@ -156,18 +160,8 @@ def test_reduction():
 
 
 def get_sum(inputs):
-    current_sum = None
-    i = 0
-    while i < len(inputs):
-        next_number = Node(json.loads(inputs[i]))
-        if not current_sum:
-            current_sum = next_number
-        else:
-            current_sum = Node([current_sum, next_number])
-        current_sum.reduce()
-        i += 1
-
-    return current_sum
+    nodes = [Node(json.loads(input)) for input in inputs]
+    return sum(nodes[1:], nodes[0])
 
 
 def parse_input():
@@ -180,3 +174,31 @@ def parse_input():
 
 snailfish_sum = get_sum(parse_input())
 print(f"{snailfish_sum}, magnitude: {snailfish_sum.magnitude}")
+
+
+def get_largest_magnitude_of_any_sum():
+    start = time.time()
+    input_strings = parse_input()
+    string_to_node = {string: Node(json.loads(string)) for string in input_strings}
+    permutations = []
+    i = 0
+    while i < len(input_strings) - 1:
+        j = i + 1
+        while j < len(input_strings):
+            permutations.extend([[input_strings[i], input_strings[j]], [input_strings[j], input_strings[i]]])
+            j += 1
+        i += 1
+
+    max_magnitude = 0
+    for first, second in permutations:
+        first_node = string_to_node.get(first)
+        second_node = string_to_node.get(second)
+        snailfish_sum = first_node + second_node
+        sum_magnitude = snailfish_sum.magnitude
+        if sum_magnitude > max_magnitude:
+            max_magnitude = sum_magnitude
+    print(f'done in {(time.time() - start) * 1000}ms')
+    return max_magnitude
+
+
+print(f"Largest magnitude of two numbers: {get_largest_magnitude_of_any_sum()}")
